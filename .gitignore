@@ -1,0 +1,6 @@
+.env
+/node_modules/   
+/ml-latest-small/
+/frontend/node_modules/
+/node_modules
+/frontend/.next/
