@@ -17,7 +17,7 @@ app.add_middleware(
 )
 
 # Load MovieLens data
-ML_DATA_DIR = os.path.join(os.path.dirname(__file__), "../ml-latest-small")
+ML_DATA_DIR = os.path.join(os.path.dirname(__file__), "ml-latest-small")
 MOVIES_CSV = os.path.join(ML_DATA_DIR, "movies.csv")
 RATINGS_CSV = os.path.join(ML_DATA_DIR, "ratings.csv")
 
