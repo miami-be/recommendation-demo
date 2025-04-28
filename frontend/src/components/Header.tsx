@@ -28,6 +28,11 @@ const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
                   <span>&bull;</span>
                   <a href="https://www.linkedin.com/in/mashabozhevolnova/" target="_blank" rel="noopener noreferrer" className="underline hover:text-red-200">LinkedIn</a>
                   <span>&bull;</span>
+                  <a href="https://t.me/miamibe" target="_blank" rel="noopener noreferrer" className="underline hover:text-red-200">Telegram</a>
+                </div>
+                <div className="mt-1 flex flex-wrap gap-2 items-center text-sm text-blue-100">
+                  <span>My other projects</span>
+                  <span>&bull;</span>
                   <a href="https://stolovka-demo.vercel.app/" target="_blank" rel="noopener noreferrer" className="underline hover:text-red-200">B2B Saas: Stolovka</a>
                   <span>&bull;</span>
                   <a href="https://stories-for-kids.lovable.app/" target="_blank" rel="noopener noreferrer" className="underline hover:text-red-200">B2C AI app: Therapeutic Stories for Kids</a>

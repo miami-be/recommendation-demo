@@ -8,6 +8,7 @@ import { useMovies } from './hooks/useMovies';
 import { Movie } from './types';
 
 function App() {
+  const recommendationsRef = React.useRef<HTMLDivElement | null>(null);
   const { 
     movies, 
     selectedMovies, 
@@ -32,6 +33,11 @@ function App() {
 
   const handleConfirmSelection = () => {
     setShowRecommendations(true);
+    setTimeout(() => {
+      if (recommendationsRef.current) {
+        recommendationsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100); // Wait for UI to update
   };
 
   const handleClearSelection = () => {
@@ -82,13 +88,15 @@ function App() {
         </div>
         
         {showRecommendations && recommendations.length > 0 && (
-          <MovieGrid
-            title="Recommended For You"
-            movies={recommendations}
-            selectedMovies={selectedMovies}
-            onMovieClick={handleMovieClick}
-            isRecommendation={true}
-          />
+          <div ref={recommendationsRef}>
+            <MovieGrid
+              title="Recommended For You"
+              movies={recommendations}
+              selectedMovies={selectedMovies}
+              onMovieClick={handleMovieClick}
+              isRecommendation={true}
+            />
+          </div>
         )}
         
         {searchQuery && (
