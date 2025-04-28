@@ -70,27 +70,28 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
 @app.get("/recommend")
-def recommend(user_id: int = Query(..., description="User ID"), top_n: int = 5, top_k_similar_users: int = 10):
-    # Build user-item matrix
-    user_item = ratings_df.pivot_table(index='userId', columns='movieId', values='rating').fillna(0)
-    if user_id not in user_item.index:
-        return {"user_id": user_id, "recommendations": [], "reason": "User has no ratings"}
-    # Compute similarity between users
-    user_sim = cosine_similarity([user_item.loc[user_id]], user_item)[0]
-    # Get indices of top K similar users (excluding self)
-    similar_users_idx = np.argsort(-user_sim)
-    similar_users = user_item.index[similar_users_idx]
-    similar_users = [uid for uid in similar_users if uid != user_id][:top_k_similar_users]
-    # Aggregate ratings from similar users
-    similar_ratings = user_item.loc[similar_users]
-    # Exclude movies already rated by the target user
-    user_rated = set(user_item.loc[user_id][user_item.loc[user_id] > 0].index)
-    mean_ratings = similar_ratings.mean(axis=0)
-    mean_ratings = mean_ratings.drop(labels=user_rated, errors='ignore')
-    # Recommend top N movies
-    top_movies = mean_ratings.sort_values(ascending=False).head(top_n).index
-    # Merge with links_df to get tmdbId
-    rec_movies = movies_df[movies_df['movieId'].isin(top_movies)].copy()
+def recommend(
+    selected: Optional[str] = Query(None, description="Comma-separated movie IDs selected by user"),
+    top_n: int = 5
+):
+    if not selected:
+        return {"recommendations": [], "reason": "No movies selected"}
+
+    selected_ids = set(int(mid) for mid in selected.split(",") if mid.strip().isdigit())
+    # Find users who liked (rated >= 4) any of the selected movies
+    liked = ratings_df[(ratings_df['movieId'].isin(selected_ids)) & (ratings_df['rating'] >= 4)]
+    similar_users = set(liked['userId'])
+    # Gather all movies liked by those users (rated >= 4), except the selected ones
+    rec_likes = ratings_df[(ratings_df['userId'].isin(similar_users)) & (ratings_df['rating'] >= 4)]
+    rec_likes = rec_likes[~rec_likes['movieId'].isin(selected_ids)]
+    # Count and sort recommendations by popularity among similar users
+    top_recs = (
+        rec_likes['movieId']
+        .value_counts()
+        .head(top_n)
+        .index
+    )
+    rec_movies = movies_df[movies_df['movieId'].isin(top_recs)].copy()
     rec_movies = rec_movies.merge(links_df[['movieId', 'tmdbId']], on='movieId', how='left')
     def parse_tmdbid(x):
         try:
@@ -99,4 +100,7 @@ def recommend(user_id: int = Query(..., description="User ID"), top_n: int = 5, 
             return None
     rec_movies['tmdbId'] = rec_movies['tmdbId'].apply(parse_tmdbid)
     recommendations = rec_movies.to_dict(orient="records")
-    return {"user_id": user_id, "recommendations": recommendations}
+    return {"recommendations": recommendations}
+
+    return {"recommendations": recommendations}
+
