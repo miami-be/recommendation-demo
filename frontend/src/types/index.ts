@@ -6,6 +6,7 @@ export interface Movie {
   rating: number;
   genres: string[];
   description: string;
+  tmdbId?: number;
 }
 
 export interface MovieState {

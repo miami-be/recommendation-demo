@@ -45,8 +45,13 @@ LINKS_CSV = os.path.join(ML_DATA_DIR, "links.csv")
 links_df = pd.read_csv(LINKS_CSV)
 
 @app.get("/movies", response_model=list[Movie])
-def list_movies(skip: int = 0, limit: int = 20):
-    movies = movies_df.iloc[skip:skip+limit].copy()
+def list_movies(skip: int = 0, limit: int = 20, search: str = None):
+    df = movies_df.copy()
+    # If search query, filter by title or genres (case-insensitive)
+    if search:
+        search_lower = search.lower()
+        df = df[df['title'].str.lower().str.contains(search_lower) | df['genres'].str.lower().str.contains(search_lower)]
+    movies = df.iloc[skip:skip+limit].copy()
     # Merge with links to get tmdbId
     movies = movies.merge(links_df[['movieId', 'tmdbId']], on='movieId', how='left')
     # Ensure tmdbId is int or None
