@@ -16,7 +16,7 @@ export const useMovies = () => {
   useEffect(() => {
     const fetchInitialMovies = async () => {
       try {
-        const response = await axios.get('${import.meta.env.VITE_API_BASE_URL}/movies?skip=0&limit=20');
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/movies?skip=0&limit=20`);
         setState(prevState => ({
           ...prevState,
           allMovies: response.data.map((m: any) => ({
@@ -100,9 +100,7 @@ export const useMovies = () => {
         return;
       }
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/recommend?selected=${state.selectedMovies.join(",")}&top_n=20`
-        );
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/recommend?selected=${state.selectedMovies.join(",")}&top_n=20`);
         // The backend returns { recommendations: [...] }
         // Enrich recommendations with posterUrl and metadata from allMovies or TMDb
         const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || 'YOUR_TMDB_API_KEY';
